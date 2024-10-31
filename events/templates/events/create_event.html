@@ -1,0 +1,15 @@
+<!-- templates/events/create_event.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="create-event-container">
+    <h1>Create New Event</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn-submit">Create Event</button>
+    </form>
+</div>
+{% endblock %}

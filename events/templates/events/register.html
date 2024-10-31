@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="registration-container">
+        <h1>Register</h1>
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                {{ form.username }}  <!-- Render the username field -->
+                <small class="form-text text-muted">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="password1">Password:</label>
+                {{ form.password1 }}  <!-- Render the password1 field -->
+                <small class="form-text text-muted">
+                    Your password must contain at least 8 characters and cannot be entirely numeric. 
+                    It also shouldn't be too similar to your other personal information and must not be commonly used.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="password2">Password confirmation:</label>
+                {{ form.password2 }}  <!-- Render the password2 field -->
+                <small class="form-text text-muted">Enter the same password as before for verification.</small>
+            </div>
+            
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here.</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!-- templates/events/booked_events.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="booked-events-container">
+    <h1>My Booked Events</h1>
+
+    {% if bookings %}
+        {% for booking in bookings %}
+        <div class="booking-card">
+            <h2>{{ booking.event.name }}</h2>
+            <p><strong>Date:</strong> {{ booking.event.date }}</p>
+            <p><strong>Location:</strong> {{ booking.event.location }}</p>
+            <p><strong>Description:</strong> {{ booking.event.description }}</p>
+        </div>
+        <hr>
+        {% endfor %}
+    {% else %}
+        <p>You haven't booked any events yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

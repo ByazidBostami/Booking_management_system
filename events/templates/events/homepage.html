@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}  <!-- Ensure you load static if using any static files -->
+
+{% block content %}
+<div class="events-container">
+    <h1>Upcoming Events</h1>
+
+    <!-- Search Bar and Category Filter -->
+    <form method="get" action="{% url 'homepage' %}">
+        <input type="text" name="search" placeholder="Search events..." value="{{ query }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            <option value="conference" {% if category_filter == "conference" %}selected{% endif %}>Conference</option>
+            <option value="concert" {% if category_filter == "concert" %}selected{% endif %}>Concert</option>
+            <option value="workshop" {% if category_filter == "workshop" %}selected{% endif %}>Workshop</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Event Listings -->
+    {% if events %}
+        {% for event in events %}
+        <div class="event-card">
+            <h2>{{ event.name }}</h2>
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Description:</strong> {{ event.description }}</p>
+            <p><strong>Category:</strong> {{ event.category }}</p>
+            <p><strong>Capacity:</strong> {{ event.capacity }} seats</p>
+
+            {% if user.is_authenticated %}
+                {% if event.id in user_booked_events %}
+                    <p class="status booked"><strong>Status:</strong> Booked</p>
+                {% elif event.is_fully_booked %}
+                    <p class="status fully-booked"><strong>Status:</strong> Fully Booked</p>
+                {% else %}
+                    <a class="book-button" href="{% url 'book_event' event.id %}">Book Event</a>
+                {% endif %}
+            {% else %}
+                <a class="login-button" href="{% url 'login' %}">Login to Book</a>
+            {% endif %}
+        </div>
+        <hr>
+        {% endfor %}
+    {% else %}
+        <p>No events found.</p>
+    {% endif %}
+</div>
+{% endblock %}
