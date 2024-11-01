@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from django.http import HttpResponseForbidden
 from .models import Event, Booking
 from .forms import EventForm
 from django.contrib.auth.forms import UserCreationForm
@@ -108,32 +108,63 @@ def booked_events(request):
 
 
 @login_required
-def update_event(request, event_id):
-    """Update an event view."""
-    event = get_object_or_404(Event, id=event_id, created_by=request.user)
+# def update_event(request, event_id):
+#     """Update an event view."""
+#     event = get_object_or_404(Event, id=event_id, created_by=request.user)
     
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, instance=event)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Event updated successfully!")
+#             return redirect('homepage')
+#     else:
+#         form = EventForm(instance=event)
+    
+#     return render(request, 'events/update_event.html', {'form': form, 'event': event})
+
+def update_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    # Check if the current user is the creator of the event
+    if event.created_by != request.user:
+        return HttpResponseForbidden("You do not have permission to edit this event.")
+
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
-            messages.success(request, "Event updated successfully!")
-            return redirect('homepage')
+            return redirect('view_events')  # Redirect after successful update
     else:
         form = EventForm(instance=event)
-    
-    return render(request, 'events/update_event.html', {'form': form, 'event': event})
 
+    return render(request, 'events/update_event.html', {
+        'form': form,
+        'event': event
+    })
 
 @login_required
+# def delete_event(request, event_id):
+#     """Delete an event view."""
+#     event = get_object_or_404(Event, id=event_id, created_by=request.user)
+
+#     if request.method == 'POST':
+#         event.delete()
+#         messages.success(request, "Event deleted successfully!")
+#         return redirect('homepage')
+    
+#     return render(request, 'events/delete_event.html', {'event': event})
 def delete_event(request, event_id):
-    """Delete an event view."""
-    event = get_object_or_404(Event, id=event_id, created_by=request.user)
+    event = get_object_or_404(Event, id=event_id)
+
+    # Check if the current user is the creator of the event
+    if event.created_by != request.user:
+        return HttpResponseForbidden("You do not have permission to delete this event.")
 
     if request.method == 'POST':
-        event.delete()
-        messages.success(request, "Event deleted successfully!")
-        return redirect('homepage')
-    
+        event.delete()  # Delete the event if the user is the creator
+        return redirect('view_events')  # Redirect to the view events page after deletion
+
     return render(request, 'events/delete_event.html', {'event': event})
 
 
