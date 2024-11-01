@@ -107,7 +107,7 @@ def booked_events(request):
     return render(request, 'events/booked_events.html', {'bookings': bookings})
 
 
-@login_required
+# @login_required
 # def update_event(request, event_id):
 #     """Update an event view."""
 #     event = get_object_or_404(Event, id=event_id, created_by=request.user)
@@ -123,13 +123,15 @@ def booked_events(request):
     
 #     return render(request, 'events/update_event.html', {'form': form, 'event': event})
 
+@login_required
 def update_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-
-    # Check if the current user is the creator of the event
-    if event.created_by != request.user:
-        return HttpResponseForbidden("You do not have permission to edit this event.")
-
+    
+    # Check if the user is the event creator or a superuser
+    if event.created_by != request.user and not request.user.is_superuser:
+        messages.error(request, "You do not have permission to update this event.")
+        return redirect('view_events')
+    
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
@@ -143,7 +145,8 @@ def update_event(request, event_id):
         'event': event
     })
 
-@login_required
+
+# @login_required
 # def delete_event(request, event_id):
 #     """Delete an event view."""
 #     event = get_object_or_404(Event, id=event_id, created_by=request.user)
@@ -154,18 +157,21 @@ def update_event(request, event_id):
 #         return redirect('homepage')
     
 #     return render(request, 'events/delete_event.html', {'event': event})
+@login_required
 def delete_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-
-    # Check if the current user is the creator of the event
-    if event.created_by != request.user:
-        return HttpResponseForbidden("You do not have permission to delete this event.")
+    
+    # Check if the user is the event creator or a superuser
+    if event.created_by != request.user and not request.user.is_superuser:
+        messages.error(request, "You do not have permission to delete this event.")
+        return redirect('view_events')
 
     if request.method == 'POST':
-        event.delete()  # Delete the event if the user is the creator
-        return redirect('view_events')  # Redirect to the view events page after deletion
+        event.delete()  # Delete the event
+        return redirect('view_events')  # Redirect to view events page after deletion
 
     return render(request, 'events/delete_event.html', {'event': event})
+
 
 
 def view_events(request):
